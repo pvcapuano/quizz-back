@@ -24,10 +24,6 @@ namespace quizz_api.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Participant>>> GetParticipants()
         {
-          if (_context.Participants == null)
-          {
-              return NotFound();
-          }
             return await _context.Participants.ToListAsync();
         }
 
@@ -35,10 +31,6 @@ namespace quizz_api.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Participant>> GetParticipant(int id)
         {
-          if (_context.Participants == null)
-          {
-              return NotFound();
-          }
             var participant = await _context.Participants.FindAsync(id);
 
             if (participant == null)
@@ -52,12 +44,17 @@ namespace quizz_api.Controllers
         // PUT: api/Participant/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutParticipant(int id, Participant participant)
+        public async Task<IActionResult> PutParticipant(int id, ParticipantRestult _participantResult)
         {
-            if (id != participant.ParticipantId)
+            if (id != _participantResult.ParticipantId)
             {
                 return BadRequest();
             }
+
+            // get all current details of the record, then update with quiz results
+            Participant participant = _context.Participants.Find(id);
+            participant.Score = _participantResult.Score;
+            participant.TimeTaken = _participantResult.TimeTaken;
 
             _context.Entry(participant).State = EntityState.Modified;
 
@@ -85,24 +82,19 @@ namespace quizz_api.Controllers
         [HttpPost]
         public async Task<ActionResult<Participant>> PostParticipant(Participant participant)
         {
-            var existingParticipant = _context.Participants
-                .FirstOrDefault(x => x.Name == participant.Name && x.Email == participant.Email);
+            var temp = _context.Participants
+                .Where(x => x.Name == participant.Name
+                && x.Email == participant.Email)
+                .FirstOrDefault();
 
-            if (existingParticipant == null)
+            if (temp == null)
             {
                 _context.Participants.Add(participant);
                 await _context.SaveChangesAsync();
             }
             else
-            {
-                // Atualiza as propriedades do participante existente com as informações do novo participante
-                existingParticipant.Name = participant.Name;
-                existingParticipant.Email = participant.Email;
-                existingParticipant.Score = participant.Score;
-                existingParticipant.TimeTaken = participant.TimeTaken;
-            }
+                participant = temp;
 
-            
             return Ok(participant);
         }
 
@@ -111,10 +103,6 @@ namespace quizz_api.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteParticipant(int id)
         {
-            if (_context.Participants == null)
-            {
-                return NotFound();
-            }
             var participant = await _context.Participants.FindAsync(id);
             if (participant == null)
             {
@@ -129,7 +117,7 @@ namespace quizz_api.Controllers
 
         private bool ParticipantExists(int id)
         {
-            return (_context.Participants?.Any(e => e.ParticipantId == id)).GetValueOrDefault();
+            return _context.Participants.Any(e => e.ParticipantId == id);
         }
     }
 }
