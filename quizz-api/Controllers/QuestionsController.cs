@@ -24,11 +24,19 @@ namespace quizz_api.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Question>>> GetQuestions()
         {
-          if (_context.Questions == null)
-          {
-              return NotFound();
-          }
-            return await _context.Questions.ToListAsync();
+            var random5Qs = await (_context.Questions
+                .Select(x => new
+                {
+                    QnId = x.QnId,
+                    QnInWords = x.QnInWords,
+                    Options = new string[] { x.Option1, x.Option2, x.Option3, x.Option4 }
+
+                })
+                .OrderBy(y => Guid.NewGuid())
+                .Take(5)
+                ).ToListAsync();
+
+            return Ok(random5Qs);
         }
 
         // GET: api/Questions/5
