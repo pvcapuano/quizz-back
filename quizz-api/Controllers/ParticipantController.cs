@@ -77,6 +77,7 @@ namespace quizz_api.Controllers
             return NoContent();
         }
 
+
         // POST: api/Participant
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
