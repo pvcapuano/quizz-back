@@ -6,8 +6,7 @@ EXPOSE 80
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
-COPY ["quizz-api/quizz-api.csproj", "quizz-api/quizz-api.csproj"]
-RUN "/quizz-api/quizz-api.csproj"
+COPY ["quizz-api/quizz-api.csproj", "./quizz-api"]
 RUN dotnet restore "quizz-api/quizz-api.csproj"
 COPY . .
 WORKDIR "/src/quizz-api"

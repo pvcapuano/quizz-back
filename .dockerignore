@@ -22,5 +22,9 @@
 **/secrets.dev.yaml
 **/values.dev.yaml
 * !dist/
+**/*
+!docker-images
+!configs
+!main
 LICENSE
 README.md
